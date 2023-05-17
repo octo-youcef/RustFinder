@@ -19,7 +19,7 @@ impl Finder<'_> {
         WalkDir::new(self.path).follow_links(true).into_iter()
     }
 
-    pub fn find(&self) -> Vec<PathBuf> {
+    fn unfiltered_find(&self) -> Vec<PathBuf> {
         // Recursively find files from the finder root
         let mut results = Vec::new();
         let filepath_iterator = self
@@ -34,7 +34,7 @@ impl Finder<'_> {
         results
     }
 
-    pub fn filter_find(&self, query: &str) -> Vec<PathBuf> {
+    fn filtered_find(&self, query: &str) -> Vec<PathBuf> {
         // Recursively find files from the finder root
         // filtering to filenames containing some value
         let mut results = Vec::new();
@@ -49,6 +49,13 @@ impl Finder<'_> {
         }
 
         results
+    }
+
+    pub fn find(&self, query: Option<&str>) -> Vec<PathBuf> {
+        match query {
+            Some(q) => self.filtered_find(q),
+            None => self.unfiltered_find(),
+        }
     }
 }
 
