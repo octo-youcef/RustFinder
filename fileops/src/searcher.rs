@@ -1,14 +1,13 @@
-
 pub struct Searcher<'a> {
     query: &'a str,
-    contents: &'a str
+    contents: &'a str,
 }
 
 impl Searcher<'_> {
     pub fn new<'a>(query: &'a str, contents: &'a str) -> Searcher<'a> {
         Searcher {
             query: query,
-            contents: contents
+            contents: contents,
         }
     }
 
@@ -53,31 +52,30 @@ mod tests {
 
     #[test]
     fn test_case_sensitive() -> Result<(), Error> {
-        let searcher = Searcher::new("line","line one\nLINE TWO");
+        let searcher = Searcher::new("line", "line one\nLINE TWO");
 
         let observed_result = searcher.search(true);
         let mut expected_result = Vec::new();
-        
+
         expected_result.push("line one");
-        
+
         assert_eq!(observed_result, expected_result);
 
         Ok(())
     }
-    
+
     #[test]
     fn test_case_insensitive() -> Result<(), Error> {
-        let searcher = Searcher::new("line","line one\nLINE TWO");
+        let searcher = Searcher::new("line", "line one\nLINE TWO");
 
         let observed_result = searcher.search(false);
         let mut expected_result = Vec::new();
-        
+
         expected_result.push("line one");
         expected_result.push("LINE TWO");
-        
+
         assert_eq!(observed_result, expected_result);
 
         Ok(())
     }
 }
-
