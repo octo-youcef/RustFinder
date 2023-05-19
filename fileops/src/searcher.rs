@@ -36,11 +36,11 @@ impl Searcher<'_> {
         results
     }
 
-    pub fn search(&self, case_sensitive: bool) -> Vec<&str> {
-        if case_sensitive {
-            self._sensitive_search()
-        } else {
+    pub fn search(&self, case_insensitive: bool) -> Vec<&str> {
+        if case_insensitive {
             self._insensitive_search()
+        } else {
+            self._sensitive_search()
         }
     }
 }
@@ -54,7 +54,7 @@ mod tests {
     fn test_case_sensitive() -> Result<(), Error> {
         let searcher = Searcher::new("line", "line one\nLINE TWO");
 
-        let observed_result = searcher.search(true);
+        let observed_result = searcher.search(false);
         let mut expected_result = Vec::new();
 
         expected_result.push("line one");
@@ -68,7 +68,7 @@ mod tests {
     fn test_case_insensitive() -> Result<(), Error> {
         let searcher = Searcher::new("line", "line one\nLINE TWO");
 
-        let observed_result = searcher.search(false);
+        let observed_result = searcher.search(true);
         let mut expected_result = Vec::new();
 
         expected_result.push("line one");
