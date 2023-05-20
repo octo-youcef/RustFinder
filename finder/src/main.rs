@@ -7,6 +7,7 @@ use fileops::searcher::Searcher;
 use clap::{Parser};
 
 #[derive(Parser)]
+#[command(arg_required_else_help = true)]
 #[command(author, version, about, long_about = None)]
 struct Cli {
     /// Optional path to operate on, defaults to CWD
