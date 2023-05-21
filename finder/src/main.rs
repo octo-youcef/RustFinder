@@ -4,7 +4,7 @@ use std::io::Error;
 use fileops::finder::Finder;
 use fileops::searcher::Searcher;
 
-use clap::{Parser};
+use clap::Parser;
 
 #[derive(Parser)]
 #[command(arg_required_else_help = true)]
@@ -35,7 +35,7 @@ fn main() -> Result<(), Error> {
 
     for path in finder.find(file_pattern) {
         if let Some(query) = cli.search_pattern.as_deref() {
-            let contents = fs::read_to_string(path.clone())?;
+            let contents = fs::read_to_string(&path)?;
             let searcher = Searcher::new(query, &contents);
             let case_insensitive = cli.case_insensitive;
 
