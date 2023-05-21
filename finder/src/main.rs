@@ -1,5 +1,5 @@
 use std::fs;
-use std::io::Error;
+use std::io::{Error, ErrorKind};
 
 use fileops::finder::Finder;
 use fileops::searcher::Searcher;
@@ -35,7 +35,15 @@ fn main() -> Result<(), Error> {
 
     for path in finder.find(file_pattern) {
         if let Some(query) = cli.search_pattern.as_deref() {
-            let contents = fs::read_to_string(&path)?;
+            let contents = match fs::read_to_string(&path) {
+                Ok(c) => c,
+                Err(ref e) if e.kind() == ErrorKind::InvalidData => {
+                    println!("Cannot read file: {:?}", path);
+                    continue;
+                }
+                Err(e) => return Err(e),
+            };
+
             let searcher = Searcher::new(query, &contents);
             let case_insensitive = cli.case_insensitive;
 
