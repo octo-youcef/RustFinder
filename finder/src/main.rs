@@ -24,6 +24,10 @@ struct Cli {
     /// Flag for case insensitive search
     #[arg(short = 'i', long)]
     case_insensitive: bool,
+
+    /// Verbose output details unreadable files
+    #[arg(short, long)]
+    verbose: bool,
 }
 
 fn main() -> Result<(), Error> {
@@ -38,8 +42,13 @@ fn main() -> Result<(), Error> {
             let contents = match fs::read_to_string(&path) {
                 Ok(c) => c,
                 Err(ref e) if e.kind() == ErrorKind::InvalidData => {
-                    println!("Cannot read file: {:?}", path);
-                    continue;
+                    let verbose = cli.verbose;
+                    if verbose {
+                        println!("Cannot read file: {:?}", path);
+                        continue;
+                    } else {
+                        continue;
+                    }
                 }
                 Err(e) => return Err(e),
             };
