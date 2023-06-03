@@ -1,10 +1,8 @@
-use std::fs;
-use std::io::{Error, ErrorKind};
-
-use fileops::finder::Finder;
-use fileops::searcher::Searcher;
-
 use clap::Parser;
+use fileops::finder::Finder;
+use fileops::searcher::{ReSearcher, Searcher};
+use finder::search_files;
+use std::io::Error;
 
 #[derive(Parser)]
 #[command(arg_required_else_help = true)]
@@ -20,6 +18,10 @@ struct Cli {
     /// Search pattern find in result files
     #[arg(short, long)]
     search_pattern: Option<String>,
+
+    /// Regex pattern find in result files
+    #[arg(short, long)]
+    regex_pattern: Option<String>,
 
     /// Flag for case insensitive search
     #[arg(short = 'i', long)]
@@ -37,29 +39,23 @@ fn main() -> Result<(), Error> {
     let finder = Finder::new(cli.path.as_deref())?;
     let file_pattern = cli.file_pattern.as_deref();
 
-    for path in finder.find(file_pattern) {
-        if let Some(query) = cli.search_pattern.as_deref() {
-            let contents = match fs::read_to_string(&path) {
-                Ok(c) => c,
-                Err(ref e) if e.kind() == ErrorKind::InvalidData => {
-                    let verbose = cli.verbose;
-                    if verbose {
-                        println!("Cannot read file: {:?}", path);
-                        continue;
-                    } else {
-                        continue;
-                    }
-                }
-                Err(e) => return Err(e),
-            };
+    // Get iterable paths
+    let paths = finder.find(file_pattern);
 
-            let searcher = Searcher::new(query, &contents);
-            let case_insensitive = cli.case_insensitive;
+    // Determine if verbose or not
+    let verbose = cli.verbose;
 
-            for line_match in searcher.search(case_insensitive) {
-                println!("{:?}: {}", path, line_match);
-            }
-        } else {
+    if let Some(query) = cli.search_pattern.as_deref() {
+        let case_insensitive = cli.case_insensitive;
+        let searcher = Searcher::new(query, case_insensitive);
+
+        search_files(searcher, paths, verbose)?;
+    } else if let Some(pattern) = cli.regex_pattern.as_deref() {
+        let re_searcher = ReSearcher::new(pattern);
+
+        search_files(re_searcher, paths, verbose)?;
+    } else {
+        for path in paths {
             println!("{:?}", path);
         }
     }
