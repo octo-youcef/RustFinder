@@ -15,11 +15,11 @@ struct Cli {
     #[arg(short, long)]
     file_pattern: Option<String>,
 
-    /// Search pattern find in result files
+    /// Search pattern to match in result files
     #[arg(short, long)]
     search_pattern: Option<String>,
 
-    /// Regex pattern find in result files
+    /// Regex pattern to match in result files
     #[arg(short, long)]
     regex_pattern: Option<String>,
 
