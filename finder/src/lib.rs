@@ -2,10 +2,11 @@ use std::fs;
 use std::io::{Error, ErrorKind};
 use std::path::PathBuf;
 
-use fileops::searcher::Searches;
+pub mod file_finder;
+pub mod searcher;
 
 pub fn search_files(
-    searcher: impl Searches,
+    searcher: impl searcher::Searches,
     paths: Vec<PathBuf>,
     verbose: bool,
 ) -> Result<(), Error> {
