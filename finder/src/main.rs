@@ -1,8 +1,9 @@
 use clap::Parser;
-use fileops::finder::Finder;
-use fileops::searcher::{ReSearcher, Searcher};
-use finder::search_files;
 use std::io::Error;
+
+use finder::file_finder;
+use finder::search_files;
+use finder::searcher;
 
 #[derive(Parser)]
 #[command(arg_required_else_help = true)]
@@ -36,7 +37,7 @@ fn main() -> Result<(), Error> {
     let cli = Cli::parse();
 
     // Grab finder values from the command line
-    let finder = Finder::new(cli.path.as_deref())?;
+    let finder = file_finder::Finder::new(cli.path.as_deref())?;
     let file_pattern = cli.file_pattern.as_deref();
 
     // Get iterable paths
@@ -47,11 +48,11 @@ fn main() -> Result<(), Error> {
 
     if let Some(query) = cli.search_pattern.as_deref() {
         let case_insensitive = cli.case_insensitive;
-        let searcher = Searcher::new(query, case_insensitive);
+        let searcher = searcher::Searcher::new(query, case_insensitive);
 
         search_files(searcher, paths, verbose)?;
     } else if let Some(pattern) = cli.regex_pattern.as_deref() {
-        let re_searcher = ReSearcher::new(pattern);
+        let re_searcher = searcher::ReSearcher::new(pattern);
 
         search_files(re_searcher, paths, verbose)?;
     } else {
