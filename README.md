@@ -1,18 +1,4 @@
-# RustKit
-A set of CLI tools built in Rust to simplify operation and navigation
-
-## Getting Started
-RustKit ships with a MakeFile for easy installation of components
-```bash
-make install
-```
-
-Alternatively individual components can be installed using `cargo instal --path <component_dir>` e.g.
-```bash
-cargo install --path finder/
-```
-
-## Finder
+# RustFinder
 A tool to replace the complex bash `find` logic which searches for files (optionally) containing some string or regular expression pattern.
 
 ### The challenge
@@ -36,8 +22,10 @@ Arguments:
 
 Options:
   -f, --file-pattern <FILE_PATTERN>      File pattern to filter results
-  -s, --search-pattern <SEARCH_PATTERN>  Search pattern find in result files
+  -s, --search-pattern <SEARCH_PATTERN>  Search pattern to match in result files
+  -r, --regex-pattern <REGEX_PATTERN>    Regex pattern to match in result files
   -i, --case-insensitive                 Flag for case insensitive search
+  -v, --verbose                          Verbose output details unreadable files
   -h, --help                             Print help
   -V, --version                          Print version
 ```
