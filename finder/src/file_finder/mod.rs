@@ -1,7 +1,7 @@
 use std::io::Error;
 use std::path::{Path, PathBuf};
 use walkdir::{IntoIter, WalkDir};
-pub mod path_parser;
+mod path_parser;
 
 pub struct Finder<'a> {
     pub path: &'a Path,
