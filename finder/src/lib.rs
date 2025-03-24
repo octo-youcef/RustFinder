@@ -26,7 +26,12 @@ pub fn search_files(
         };
 
         for line_match in searcher.search(&contents) {
-            println!("{:?}: {}", path, line_match);
+            println!(
+                "{:>4}: {:<56} {}",
+                line_match.rownum,
+                path.as_path().to_str().unwrap(),
+                line_match.line
+            );
         }
     }
 

@@ -1,9 +1,13 @@
 use regex::Regex;
 
-pub trait Searches {
-    fn search<'a>(&'a self, contents: &'a str) -> Vec<String>;
+// Struct for search results
+#[derive(Debug, PartialEq)]
+pub struct SearchResult {
+    pub rownum: usize,
+    pub line: String,
 }
 
+// Structs for basic and regex searchers
 pub struct Searcher<'a> {
     query: &'a str,
     case_insensitive: bool,
@@ -11,6 +15,17 @@ pub struct Searcher<'a> {
 
 pub struct ReSearcher {
     pattern: Regex,
+}
+
+// Searches trait for things which can perform search functions
+pub trait Searches {
+    fn search<'a>(&'a self, contents: &'a str) -> Vec<SearchResult>;
+}
+
+impl SearchResult {
+    fn new(rownum: usize, line: String) -> SearchResult {
+        SearchResult { rownum, line }
+    }
 }
 
 impl Searcher<'_> {
@@ -21,13 +36,14 @@ impl Searcher<'_> {
         }
     }
 
-    fn _sensitive_search<'a>(&'a self, contents: &'a str) -> Vec<String> {
+    fn _sensitive_search<'a>(&'a self, contents: &'a str) -> Vec<SearchResult> {
         let mut results = Vec::new();
         let mut rownum = 1;
 
         for line in contents.lines() {
             if line.contains(self.query) {
-                results.push(format!("{}: {}", rownum, line));
+                let result = SearchResult::new(rownum, line.to_string());
+                results.push(result)
             }
             rownum += 1;
         }
@@ -35,14 +51,15 @@ impl Searcher<'_> {
         results
     }
 
-    fn _insensitive_search<'a>(&'a self, contents: &'a str) -> Vec<String> {
+    fn _insensitive_search<'a>(&'a self, contents: &'a str) -> Vec<SearchResult> {
         let mut results = Vec::new();
         let query = self.query.to_lowercase();
         let mut rownum = 1;
 
         for line in contents.lines() {
             if line.to_lowercase().contains(&query) {
-                results.push(format!("{}: {}", rownum, line));
+                let result = SearchResult::new(rownum, line.to_string());
+                results.push(result)
             }
             rownum += 1;
         }
@@ -60,7 +77,7 @@ impl ReSearcher {
 }
 
 impl Searches for Searcher<'_> {
-    fn search<'a>(&'a self, contents: &'a str) -> Vec<String> {
+    fn search<'a>(&'a self, contents: &'a str) -> Vec<SearchResult> {
         if self.case_insensitive {
             self._insensitive_search(contents)
         } else {
@@ -70,13 +87,14 @@ impl Searches for Searcher<'_> {
 }
 
 impl Searches for ReSearcher {
-    fn search<'a>(&'a self, contents: &'a str) -> Vec<String> {
+    fn search<'a>(&'a self, contents: &'a str) -> Vec<SearchResult> {
         let mut results = Vec::new();
         let mut rownum = 1;
 
         for line in contents.lines() {
             if self.pattern.is_match(line) {
-                results.push(format!("{}: {}", rownum, line));
+                let result = SearchResult::new(rownum, line.to_string());
+                results.push(result)
             }
             rownum += 1;
         }
@@ -98,7 +116,7 @@ mod tests {
         let observed_result = searcher.search(CONTENTS);
         let mut expected_result = Vec::new();
 
-        expected_result.push("1: line one");
+        expected_result.push(SearchResult::new(1, "line one".to_string()));
 
         assert_eq!(observed_result, expected_result);
 
@@ -112,8 +130,8 @@ mod tests {
         let observed_result = searcher.search(CONTENTS);
         let mut expected_result = Vec::new();
 
-        expected_result.push("1: line one");
-        expected_result.push("2: LINE TWO");
+        expected_result.push(SearchResult::new(1, "line one".to_string()));
+        expected_result.push(SearchResult::new(2, "LINE TWO".to_string()));
 
         assert_eq!(observed_result, expected_result);
 
@@ -127,7 +145,7 @@ mod tests {
         let observed_result = re_searcher.search(CONTENTS);
         let mut expected_result = Vec::new();
 
-        expected_result.push("1: line one");
+        expected_result.push(SearchResult::new(1, "line one".to_string()));
 
         assert_eq!(observed_result, expected_result);
 
