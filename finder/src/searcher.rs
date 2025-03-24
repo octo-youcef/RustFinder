@@ -1,7 +1,7 @@
 use regex::Regex;
 
 pub trait Searches {
-    fn search<'a>(&'a self, contents: &'a str) -> Vec<&str>;
+    fn search<'a>(&'a self, contents: &'a str) -> Vec<String>;
 }
 
 pub struct Searcher<'a> {
@@ -21,26 +21,30 @@ impl Searcher<'_> {
         }
     }
 
-    fn _sensitive_search<'a>(&'a self, contents: &'a str) -> Vec<&str> {
+    fn _sensitive_search<'a>(&'a self, contents: &'a str) -> Vec<String> {
         let mut results = Vec::new();
+        let mut rownum = 1;
 
         for line in contents.lines() {
             if line.contains(self.query) {
-                results.push(line);
+                results.push(format!("{}: {}", rownum, line));
             }
+            rownum += 1;
         }
 
         results
     }
 
-    fn _insensitive_search<'a>(&'a self, contents: &'a str) -> Vec<&str> {
+    fn _insensitive_search<'a>(&'a self, contents: &'a str) -> Vec<String> {
         let mut results = Vec::new();
         let query = self.query.to_lowercase();
+        let mut rownum = 1;
 
         for line in contents.lines() {
             if line.to_lowercase().contains(&query) {
-                results.push(line);
+                results.push(format!("{}: {}", rownum, line));
             }
+            rownum += 1;
         }
 
         results
@@ -56,7 +60,7 @@ impl ReSearcher {
 }
 
 impl Searches for Searcher<'_> {
-    fn search<'a>(&'a self, contents: &'a str) -> Vec<&str> {
+    fn search<'a>(&'a self, contents: &'a str) -> Vec<String> {
         if self.case_insensitive {
             self._insensitive_search(contents)
         } else {
@@ -66,13 +70,15 @@ impl Searches for Searcher<'_> {
 }
 
 impl Searches for ReSearcher {
-    fn search<'a>(&'a self, contents: &'a str) -> Vec<&str> {
+    fn search<'a>(&'a self, contents: &'a str) -> Vec<String> {
         let mut results = Vec::new();
+        let mut rownum = 1;
 
         for line in contents.lines() {
             if self.pattern.is_match(line) {
-                results.push(line);
+                results.push(format!("{}: {}", rownum, line));
             }
+            rownum += 1;
         }
 
         results
@@ -92,7 +98,7 @@ mod tests {
         let observed_result = searcher.search(CONTENTS);
         let mut expected_result = Vec::new();
 
-        expected_result.push("line one");
+        expected_result.push("1: line one");
 
         assert_eq!(observed_result, expected_result);
 
@@ -106,8 +112,8 @@ mod tests {
         let observed_result = searcher.search(CONTENTS);
         let mut expected_result = Vec::new();
 
-        expected_result.push("line one");
-        expected_result.push("LINE TWO");
+        expected_result.push("1: line one");
+        expected_result.push("2: LINE TWO");
 
         assert_eq!(observed_result, expected_result);
 
@@ -121,7 +127,7 @@ mod tests {
         let observed_result = re_searcher.search(CONTENTS);
         let mut expected_result = Vec::new();
 
-        expected_result.push("line one");
+        expected_result.push("1: line one");
 
         assert_eq!(observed_result, expected_result);
 
